@@ -1,0 +1,15 @@
+@import "bootstrap.css";
+
+ul.result li {
+    list-style-type: none;
+    width: 1000px;
+    margin-top: 1em;
+}
+
+.progress {
+    height: 3px;
+}
+
+.progress .bar {
+    transition-property: all;
+}

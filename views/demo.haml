@@ -1,92 +1,133 @@
-#demo1
-  .flash{ "data-url" => to('/') }
-  %ul.result
+!!!5
+%html
+
+  %head
+    %meta( charset="utf-8" )
+    %title ui-flash-uploader demo
+    %link( rel="stylesheet" href="#{to 'stylesheet/style.css'}")
+
+  %body
+    .container-fluid
+      .row-fluid
+        .span2
+          %h3 ui-flash-uploader demo
+          #demo1
+            .flash{ "data-url" => to('/') }
+            .progress
+              .bar{ style: "width: 0%" }
+
+          %ul
+            %li
+              %a( href="http://wd.alibaba-inc.com/fdevlib/#fdev4.jQuery.ui.flash.uploader" )
+                Flash上传组件文档 (js）
+            %li
+              %a( href="http://wd.alibaba-inc.com/doc/page/work/cbu-architecture/flash-uploader-external-interface" )
+                flash 核心文档
+            %li
+              %a( href="http://wd.alibaba-inc.com/codebase/repos/ui-flash-uploader-backend/server.rb" )
+                本例后端代码 (ruby)
+
+        .span10
+
+          %ul.result
 
 
-%script( src="http://style.china.alibaba.com/js/lib/fdev-v4/core/fdev-min.js" )
+    %script( src="http://style.china.alibaba.com/js/lib/fdev-v4/core/fdev-min.js" )
 
-:javascript
-  jQuery(function($){
-    
-    $.DEBUG = true;
+    :javascript
+      jQuery(function($){
 
-    $.use('ui-flash-uploader2, util-debug', function(){
+        $.DEBUG = true;
 
-      var demo1 = $('div.flash', '#demo1').flash({
-        module: 'uploader2', 
-        swf: 'aliuploader-v3.3.swf',
-        flashvars: { debug: true }
+        $.use('ui-flash-uploader2, util-debug', function(){
 
-      }).bind('fileSelect.flash', function(e, o){
-        $(this).flash('uploadAll', $(this).data('url'), {
-          drawTxt: true,
-            albumId: '15815320',
-              _csrf_token: 'test',
-              source: 'picman'
-          }, 'FileData', 'fname');
-      }).bind('swfReady.flash', function(e){
-        $.log('swfReady');
-      }).bind('processStart.flash', function(e, o){
-        $.log('processStart');
-          $.log(o.file);
-      }).bind('processProgress.flash', function(e, o){
-        $.log('processProgress');
-          $.log(o.file);
-      }).bind('processFinish.flash', function(e, o){
-        $.log('processFinish');
-          $.log(o.file);
-      }).bind('transferStart.flash', function(e, o){
-        $.log('transferStart');
-          $.log(o.file);
-      }).bind('transferProgress.flash', function(e, o){
-        $.log('transferProgress');
-          $.log(o.file);
-      }).bind('transferError.flash', function(e, o){
-        $.log('transferError');
-          $.log(o.file);
-      }).bind('transferComplete.flash', function(e, o){
-        $.log('transferComplete');
-          $.log(o.file);
-      }).bind('transferCompleteData.flash', function(e, o){
-        $.log('transferCompleteData');
-          $.log(o.file);
+          var demo1 = $('div.flash', '#demo1').flash({
+            module: 'uploader2', 
+            swf: 'aliuploader-v3.3.swf',
+            width: 159,
+            height: 32,
+            flashvars: { 
+              debug: true,
+              buttonSkin: 'http://img.china.alibaba.com/swfapp/aliuploader/upload-btn.png'
+            }
 
-          var file = o.file,
-              result1 = $('ul.result', '#demo1');
+          }).on('fileSelect.flash', function(e, o){
 
-          if (file.status === 'done') {
-            var msg = eval('(' + file.msg + ')');
-              if (msg.result === 'success') {
-                var li = $('<li>');
-                  var img = new Image();
-                  img.src = msg.miniImgUrls[0];
-                  result1.prepend(li.append(img));
+              $(this).flash('uploadAll', $(this).data('url'), {
+                drawTxt: true,
+                albumId: '15815320',
+                _csrf_token: 'test',
+                source: 'picman'
+              }, 'FileData', 'fname');
+
+              setProgress(0);
+              $('.progress .bar').removeClass('bar-success');
+
+          }).
+
+          on( 'swfReady browse ' +
+            'processStart processProgress processFinish ' +
+            'transferStart transferProgress transferError ' +
+            'transferComplete transferCompleteData ' +
+            'finish',
+            logFileEvent
+
+          ).
+          on('transferError transferCompleteData processFinish finish', updateProgress).
+          on('browse', function() { setProgress(0); } ).
+          on('transferCompleteData', function(e, o) {
+
+              var file = o.file,
+                result1 = $('ul.result');
+
+              if (file.status === 'done') {
+                var msg = eval('(' + file.msg + ')');
+                  if (msg.result === 'success') {
+                    var li = $('<li>');
+                    $('<img/>').attr('src', msg.miniImgUrls[0]).
+                      addClass('img-polaroid').appendTo(li);
+
+                    li.prependTo( result1 );
+                  }
+              }
+
+          }).on('finish.flash', function(e){
+              var fileStatuses = $(this).flash('getFileStatuses');
+              $(this).flash('clear');
+              $('.progress .bar').addClass('bar-success');
+          });
+
+          function logFileEvent(evt, o) {
+              var file = o.file;
+              if(file){
+                console.info(file.name, evt.type, o.file);
+              } else {
+                console.info(evt.type);
               }
           }
-      }).bind('finish.flash', function(e){
-        var fileStatuses = $(this).flash('getFileStatuses');
-          $.log('finish');
-          $(this).flash('clear');
-          fileStatuses = $(this).flash('getFileStatuses');
-      });
 
-      $('button.enable', '#demo1').click(function(){
-        demo1.flash('enable');
+          function updateProgress() {
+            var swf = $('#demo1 .flash').flash('getFlash'),
+                stts = swf.getFileStatuses(),
+                progress = 0,
+                st;
+
+            for(var i=0, len=stts.length; i<len; i++) {
+                st = stts[i].status;
+                progress += {
+                  notTransfered: 1,
+                  transferFail: 1,
+                  done: 1
+                }[st] || 0;
+            }
+
+            setProgress( progress / len );
+
+          }
+
+          function setProgress( value ) {
+            $('.progress .bar').width( Math.floor(value * 100) + '%' );
+          }
+
+        });
       });
-      $('button.disable', '#demo1').click(function(){
-        demo1.flash('disable');
-      });
-      $('button.filter', '#demo1').click(function(){
-        demo1.flash('setBrowseFilter', [{
-          description: '图片文件（jpg,jpeg,gif,png,bmp）',
-            extensions: '*.jpg;*.jpeg;*.gif;*.png;*.bmp'
-          }]);
-      });
-      $('button.countlimit', '#demo1').click(function(){
-        demo1.flash('setFileCountLimit', 1);
-      });
-      $('button.multiple', '#demo1').click(function(){
-        demo1.flash('allMultiple', false);
-      });
-    });
-  });
