@@ -1,5 +1,5 @@
 #demo1
-  .flash
+  .flash{ "data-url" => to('/') }
   %ul.result
 
 
@@ -11,79 +11,82 @@
     $.DEBUG = true;
 
     $.use('ui-flash-uploader2, util-debug', function(){
-      var result1 = $('ul.result', '#demo1');
+
       var demo1 = $('div.flash', '#demo1').flash({
         module: 'uploader2', 
         swf: 'aliuploader-v3.3.swf',
         flashvars: { debug: true }
+
       }).bind('fileSelect.flash', function(e, o){
-          $(this).flash('uploadAll', '/', {
-              drawTxt: true,
-              albumId: '15815320',
+        $(this).flash('uploadAll', $(this).data('url'), {
+          drawTxt: true,
+            albumId: '15815320',
               _csrf_token: 'test',
               source: 'picman'
           }, 'FileData', 'fname');
       }).bind('swfReady.flash', function(e){
-          $.log('swfReady');
+        $.log('swfReady');
       }).bind('processStart.flash', function(e, o){
-          $.log('processStart');
+        $.log('processStart');
           $.log(o.file);
       }).bind('processProgress.flash', function(e, o){
-          $.log('processProgress');
+        $.log('processProgress');
           $.log(o.file);
       }).bind('processFinish.flash', function(e, o){
-          $.log('processFinish');
+        $.log('processFinish');
           $.log(o.file);
       }).bind('transferStart.flash', function(e, o){
-          $.log('transferStart');
+        $.log('transferStart');
           $.log(o.file);
       }).bind('transferProgress.flash', function(e, o){
-          $.log('transferProgress');
+        $.log('transferProgress');
           $.log(o.file);
       }).bind('transferError.flash', function(e, o){
-          $.log('transferError');
+        $.log('transferError');
           $.log(o.file);
       }).bind('transferComplete.flash', function(e, o){
-          $.log('transferComplete');
+        $.log('transferComplete');
           $.log(o.file);
       }).bind('transferCompleteData.flash', function(e, o){
-          $.log('transferCompleteData');
+        $.log('transferCompleteData');
           $.log(o.file);
-          var file = o.file;
-          
+
+          var file = o.file,
+              result1 = $('ul.result', '#demo1');
+
           if (file.status === 'done') {
-              var msg = eval('(' + file.msg + ')');
+            var msg = eval('(' + file.msg + ')');
               if (msg.result === 'success') {
-                  var li = $('<li>');
+                var li = $('<li>');
                   var img = new Image();
                   img.src = msg.miniImgUrls[0];
                   result1.prepend(li.append(img));
               }
           }
       }).bind('finish.flash', function(e){
-          var fileStatuses = $(this).flash('getFileStatuses');
+        var fileStatuses = $(this).flash('getFileStatuses');
           $.log('finish');
           $(this).flash('clear');
           fileStatuses = $(this).flash('getFileStatuses');
       });
-      
+
       $('button.enable', '#demo1').click(function(){
-          demo1.flash('enable');
+        demo1.flash('enable');
       });
       $('button.disable', '#demo1').click(function(){
-          demo1.flash('disable');
+        demo1.flash('disable');
       });
       $('button.filter', '#demo1').click(function(){
-          demo1.flash('setBrowseFilter', [{
-              description: '图片文件（jpg,jpeg,gif,png,bmp）',
-              extensions: '*.jpg;*.jpeg;*.gif;*.png;*.bmp'
+        demo1.flash('setBrowseFilter', [{
+          description: '图片文件（jpg,jpeg,gif,png,bmp）',
+            extensions: '*.jpg;*.jpeg;*.gif;*.png;*.bmp'
           }]);
       });
       $('button.countlimit', '#demo1').click(function(){
-          demo1.flash('setFileCountLimit', 1);
+        demo1.flash('setFileCountLimit', 1);
       });
       $('button.multiple', '#demo1').click(function(){
-          demo1.flash('allMultiple', false);
+        demo1.flash('allMultiple', false);
       });
     });
   });
