@@ -15,12 +15,25 @@ post '/' do
 
   img_url  = url("/img/#{filename}")
 
-  %Q({
+  output = %Q({
     "dataList"    : [456347479],
     "result"      : "success",
     "miniImgUrls" : ["#{img_url}"],
     "imgUrls"     : ["#{img_url}"]
   })
+
+  delay = params[:delay]
+  if delay
+    stream do |out|
+      out << ' '
+      sleep delay.to_i
+      out << output
+    end
+  else
+    output
+  end
+
+
 end
 
 def filename

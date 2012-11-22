@@ -43,7 +43,7 @@
 
           var demo1 = $('div.flash', '#demo1').flash({
             module: 'uploader2', 
-            swf: 'aliuploader-v3.3.swf',
+            swf: 'aliuploader-v3.4.swf',
             width: 159,
             height: 32,
             flashvars: { 
@@ -58,7 +58,7 @@
                 albumId: '15815320',
                 _csrf_token: 'test',
                 source: 'picman'
-              }, 'FileData', 'fname');
+              }, 'FileData', 'filename');
 
               setProgress(0);
               $('.progress .bar').removeClass('bar-success');
@@ -100,9 +100,9 @@
           function logFileEvent(evt, o) {
               var file = o.file;
               if(file){
-                console.info(file.name, evt.type, o.file);
+                console.info(evt.type, 'event:', evt, 'file:', file.name,  o.file);
               } else {
-                console.info(evt.type);
+                console.info(evt.type, evt);
               }
           }
 
