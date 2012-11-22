@@ -1,23 +1,19 @@
 require 'sinatra'
 require 'haml'
+require 'fileutils'
+
+FILE_FIELD_NAME = 'FileData'
 
 # POST /
 # 尝试保存图片，并返回图片地址
 post '/' do
 
-  filename = params['fname'] || params['filename']
+  case file_field 
+    when String;  receive_as_plain_text
+    when Hash;    receive_as_blob
+  end
+
   img_url  = url("/img/#{filename}")
-
-  # Flash提交过来的文件内容已经变成了
-  # 一个字符串，可以以表单字段的方式
-  # 获取到:
-  filebody = params['FileData']
-
-  puts "file received: #{filename}"
-  puts "size: #{filebody.size}"
-
-  # 将文件内容（已经是字符串）写入磁盘
-  File.open( image_path(filename), 'w') { |f| f.write filebody }
 
   %Q({
     "dataList"    : [456347479],
@@ -25,6 +21,26 @@ post '/' do
     "miniImgUrls" : ["#{img_url}"],
     "imgUrls"     : ["#{img_url}"]
   })
+end
+
+def filename
+  params['fname'] || params['filename'] || params['Filename']
+end
+
+def file_field
+  params[FILE_FIELD_NAME]
+end
+
+def receive_as_blob
+  FileUtils.cp file_field[:tempfile], image_path(filename)
+end
+
+def receive_as_plain_text
+  # Flash提交过来的文件内容已经变成了
+  # 一个字符串，可以以表单字段的方式
+  # 获取到, 将文件内容（已经是字符串）
+  # 写入磁盘
+  File.open( image_path(filename), 'w') { |f| f.write file_field }
 end
 
 
