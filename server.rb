@@ -22,18 +22,7 @@ post '/' do
     "imgUrls"     : ["#{img_url}"]
   })
 
-  delay = params[:delay]
-  if delay
-    stream do |out|
-      out << ' '
-      sleep delay.to_i
-      out << output
-    end
-  else
-    output
-  end
-
-
+  should_delay? ? delayed_output : output
 end
 
 def filename
@@ -54,6 +43,18 @@ def receive_as_plain_text
   # 获取到, 将文件内容（已经是字符串）
   # 写入磁盘
   File.open( image_path(filename), 'w') { |f| f.write file_field }
+end
+
+def should_delay?
+  params.has_key? :delay
+end
+
+def delayed_output
+  stream do |out|
+    out << ' '
+    sleep params[:delay].to_i
+    out << output
+  end
 end
 
 
