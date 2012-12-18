@@ -22,7 +22,7 @@ post '/' do
     "imgUrls"     : ["#{img_url}"]
   })
 
-  should_delay? ? delayed_output : output
+  should_delay? ? delayed_output(output) : output
 end
 
 def filename
@@ -49,7 +49,7 @@ def should_delay?
   params.has_key? :delay
 end
 
-def delayed_output
+def delayed_output(output)
   stream do |out|
     out << ' '
     sleep params[:delay].to_i
