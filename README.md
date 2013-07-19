@@ -3,6 +3,12 @@ picman-uploader 的后端处理范例（ruby）
 
 简单的Ruby服务器，能处理picman-uploader的上传文件请求，并可以按规则输出成功或失败的返回。
 
+## 使用方式
+
+    git clone https://github.com/qhwa/picman-uploader-backend-example.git
+    cd picman-uploader-backend-example
+    ruby server.rb
+
 ## urls
 
 * POST `/`
