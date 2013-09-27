@@ -8,15 +8,17 @@ picman-uploader 的后端处理范例（ruby）
 ## urls
 
 * POST /
-    结果成功
-    
+
+  结果成功
+
 * POST /fail
-    结果失败
-    
+
+  结果失败
+
 * POST /fail/:msg
-    结果失败，并且使用指定的错误消息
+
+  结果失败，并且使用指定的错误消息
 
 * POST /random
-    随机失败或成功
-    
-    
+
+  随机失败或成功
